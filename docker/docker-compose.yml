@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+ myshopapp.pgsql:
+        image: postgres:12.4-alpine
+        container_name: myshopapp.pgsql
+        restart: always
+        ports:
+            - "5432:5432"
+        environment:
+            - POSTGRES_PASSWORD=123qwe
+            - POSTGRES_DB=myshopapp
+            - PGDATA=/var/lib/postgresql/data/pgdata
+        volumes:
+            - ./db:/var/lib/postgresql/data/pgdata

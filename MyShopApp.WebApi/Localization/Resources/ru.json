@@ -1,0 +1,26 @@
+﻿{
+  "Roles.Pages": "Роли",
+  "Roles.Create": "Создать",
+  "Roles.Read": "Просмотреть",
+  "Roles.Update": "Изменить",
+  "Roles.Delete": "Удалить",
+
+  "Users.Pages": "Пользователи",
+  "Users.Create": "Создать",
+  "Users.Read": "Просмотреть",
+  "Users.Update": "Изменить",
+  "Users.Delete": "Удалить",
+
+  "WeightProtocolDetailedInfo.Pages": "Протокол взвешивания. Подробные данные",
+  "WeightProtocolDetailedInfo.Read": "Просмотреть",
+
+  "WeightProtocolCombinedInfo.Pages": "Протокол взвешивания. Объединённые данные",
+  "WeightProtocolCombinedInfo.Read": "Просмотреть",
+
+  "CreditNote.Pages": "Кредитовое авизо",
+  "CreditNote.Read": "Просмотреть",
+
+  "Profile.Pages": "Профиль",
+  "Profile.Read": "Просмотреть",
+  "Profile.Update": "Изменть"
+}
