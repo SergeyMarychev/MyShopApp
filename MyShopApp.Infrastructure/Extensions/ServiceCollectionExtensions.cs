@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MyShopApp.Domain.Categories;
 using MyShopApp.Domain.Common;
+using MyShopApp.Domain.ProductGroups;
 using MyShopApp.Domain.Products;
 using MyShopApp.Infrastructure.Repositories;
 
@@ -20,6 +21,7 @@ namespace MyShopApp.Infrastructure.Extensions
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IProductGroupRepository, ProductGroupRepository>();
 
             return services;
         }

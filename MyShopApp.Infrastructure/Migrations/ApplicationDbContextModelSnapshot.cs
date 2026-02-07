@@ -121,6 +121,65 @@ namespace MyShopApp.Infrastructure.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("MyShopApp.Domain.ProductGroups.ProductGroup", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<decimal>("DiscountPercentage")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("DiscountedAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("Image")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("PriceWithDiscount")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ProductGroups");
+                });
+
+            modelBuilder.Entity("MyShopApp.Domain.ProductGroups.ProductGroupProduct", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<long>("ProductGroupId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductGroupId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductGroupProducts");
+                });
+
             modelBuilder.Entity("MyShopApp.Domain.Products.Product", b =>
                 {
                     b.Property<long>("Id")
@@ -134,6 +193,10 @@ namespace MyShopApp.Infrastructure.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Image")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -328,6 +391,25 @@ namespace MyShopApp.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("MyShopApp.Domain.ProductGroups.ProductGroupProduct", b =>
+                {
+                    b.HasOne("MyShopApp.Domain.ProductGroups.ProductGroup", "ProductGroup")
+                        .WithMany("ProductGroupProducts")
+                        .HasForeignKey("ProductGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MyShopApp.Domain.Products.Product", "Product")
+                        .WithMany("ProductGroupProducts")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("ProductGroup");
+                });
+
             modelBuilder.Entity("MyShopApp.Domain.Products.Product", b =>
                 {
                     b.HasOne("MyShopApp.Domain.Categories.Category", "Category")
@@ -354,6 +436,16 @@ namespace MyShopApp.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("MyShopApp.Domain.ProductGroups.ProductGroup", b =>
+                {
+                    b.Navigation("ProductGroupProducts");
+                });
+
+            modelBuilder.Entity("MyShopApp.Domain.Products.Product", b =>
+                {
+                    b.Navigation("ProductGroupProducts");
                 });
 
             modelBuilder.Entity("MyShopApp.Domain.Roles.Role", b =>

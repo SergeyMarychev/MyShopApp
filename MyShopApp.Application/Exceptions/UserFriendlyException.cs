@@ -39,5 +39,39 @@
         //    throw new UserFriendlyException("PRODUCTS:00003", $"Продукт с именем '{name}' уже существует.");
 
         #endregion
+
+        #region ProductGroups
+
+        public static void PRODUCT_GROUP_WITH_SPECIFIED_ID_WAS_NOT_FOUND(long id) => 
+            throw new UserFriendlyException("PRODUCTGROUPS:00001", $"Группа товаров с ID = {id} не найдена.");
+
+        public static void PRODUCT_GROUP_NAME_CAN_NOT_BE_EMPTY() => 
+            throw new UserFriendlyException("PRODUCTGROUPS:00002", "Название группы товаров не может быть пустым.");
+
+        public static void PRODUCT_GROUP_WITH_SPECIFIED_NAME_ALREADY_EXISTS(string name) => 
+            throw new UserFriendlyException("PRODUCTGROUPS:00003", $"Группа товаров с названием '{name}' уже существует.");
+
+        public static void PRODUCT_ALREADY_IN_GROUP(long productId, long groupId) => 
+            throw new UserFriendlyException("PRODUCTGROUPS:00004", $"Товар ID = {productId} уже добавлен в группу ID = {groupId}.");
+
+        public static void PRODUCT_NOT_IN_GROUP(long productId, long groupId) => 
+            throw new UserFriendlyException("PRODUCTGROUPS:00005", $"Товар ID = {productId} не найден в группе ID = {groupId}.");
+
+        public static void PRODUCT_GROUP_MUST_HAVE_AT_LEAST_ONE_PRODUCT() => 
+            throw new UserFriendlyException("PRODUCTGROUPS:00006", "Группа товаров должна содержать хотя бы один товар.");
+
+        public static void PRODUCT_GROUP_ONLY_ONE_DISCOUNT_METHOD_ALLOWED() => 
+            throw new UserFriendlyException("PRODUCTGROUPS:00007", "Должен быть указан только один параметр: PriceWithDiscount, DiscountPercentage или DiscountedAmount.");
+
+        public static void PRODUCT_GROUP_PRICE_WITH_DISCOUNT_CANNOT_BE_GREATER_THAN_TOTAL() => 
+            throw new UserFriendlyException("PRODUCTGROUPS:00008", "Цена со скидкой не может быть больше общей стоимости.");
+
+        public static void PRODUCT_GROUP_DISCOUNT_PERCENTAGE_CANNOT_EXCEED_100() => 
+            throw new UserFriendlyException("PRODUCTGROUPS:00009", "Процент скидки не может превышать 100%.");
+
+        public static void PRODUCT_GROUP_DISCOUNTED_AMOUNT_CANNOT_BE_GREATER_THAN_TOTAL() => 
+            throw new UserFriendlyException("PRODUCTGROUPS:00010", "Сумма скидки не может быть больше общей стоимости.");
+
+        #endregion
     }
 }
