@@ -10,6 +10,6 @@ namespace MyShopApp.Application.Contracts.ProductGroups.Dto
         public decimal DiscountPercentage { get; set; }
         public decimal DiscountedAmount { get; set; }
         public string Image { get; set; } = string.Empty;
-        public List<ProductDto> Products { get; set; } = new();
+        public IReadOnlyList<ProductDto> Products { get; set; } = [];
     }
 }

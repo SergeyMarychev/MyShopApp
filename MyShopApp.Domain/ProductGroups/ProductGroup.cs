@@ -10,8 +10,6 @@ namespace MyShopApp.Domain.ProductGroups
         public decimal DiscountedAmount { get; set; } // сумма скидки
         public string Image {  get; set; }
         public DateTime CreatedAt { get; set; }
-
-        // Навигационное свойство через промежуточную таблицу
         public ICollection<ProductGroupProduct> ProductGroupProducts { get; set; } = new List<ProductGroupProduct>();
     }
 }

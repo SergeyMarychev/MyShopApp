@@ -315,6 +315,7 @@ namespace MyShopApp.Application.ProductGroups
             _logger.LogInformation("Товар ID = {ProductId} успешно удален из группы ID = {GroupId}.", productId, productGroupId);
         }
 
+
         /// <summary>
         /// Рассчитать цены группы на основе различных входных параметров
         /// </summary>
