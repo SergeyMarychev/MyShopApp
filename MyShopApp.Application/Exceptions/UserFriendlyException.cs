@@ -73,5 +73,31 @@
             throw new UserFriendlyException("PRODUCTGROUPS:00010", "Сумма скидки не может быть больше общей стоимости.");
 
         #endregion
+
+        #region Auth
+
+        public static void PHONE_NUMBER_CAN_NOT_BE_EMPTY() =>
+            throw new UserFriendlyException("AUTH:00001", "Номер телефона не может быть пустым.");
+
+        public static void INVALID_OR_EXPIRED_CODE() =>
+            throw new UserFriendlyException("AUTH:00002", "Неверный или истекший код подтверждения.");
+
+        #endregion
+
+        #region Users
+
+        public static void USER_WITH_SPECIFIED_ID_WAS_NOT_FOUND(long id) =>
+            throw new UserFriendlyException("USERS:00001", $"Пользователь с ID {id} не найден.");
+
+        public static void USER_CREATION_FAILED(string errors) =>
+            throw new UserFriendlyException("USERS:00002", $"Ошибка создания пользователя: {errors}");
+
+        public static void USER_UPDATE_FAILED(string errors) =>
+            throw new UserFriendlyException("USERS:00003", $"Ошибка обновления пользователя: {errors}");
+
+        public static void USER_DELETION_FAILED(string errors) =>
+            throw new UserFriendlyException("USERS:00004", $"Ошибка удаления пользователя: {errors}");
+
+        #endregion
     }
 }

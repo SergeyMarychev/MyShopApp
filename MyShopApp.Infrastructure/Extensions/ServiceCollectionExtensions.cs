@@ -5,6 +5,7 @@ using MyShopApp.Domain.Categories;
 using MyShopApp.Domain.Common;
 using MyShopApp.Domain.ProductGroups;
 using MyShopApp.Domain.Products;
+using MyShopApp.Domain.Users;
 using MyShopApp.Infrastructure.Repositories;
 
 namespace MyShopApp.Infrastructure.Extensions
@@ -22,6 +23,7 @@ namespace MyShopApp.Infrastructure.Extensions
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IProductGroupRepository, ProductGroupRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
 
             return services;
         }

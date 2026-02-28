@@ -8,9 +8,11 @@ namespace MyShopApp.Application.Users
     {
         public UserProfile()
         {
-            CreateMap<User, UserDto>().ReverseMap();
-            CreateMap<User, CreateUserDto>().ReverseMap();
-            CreateMap<User, UpdateUserDto>().ReverseMap();
+            CreateMap<User, UserDto>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.UserName));
+
+            CreateMap<UpdateUserDto, User>()
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Name));
         }
     }
 }
