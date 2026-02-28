@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
-using MyShopApp.Domain.Common;
-
-namespace MyShopApp.Domain.Users
+﻿namespace MyShopApp.Application.Contracts.Users
 {
-    public class User : IdentityUser<long>, IEntity
+    public class CreateUserDto
     {
+        public string Name { get; set; }
+        public string PhoneNumber { get; set; }
         public bool AllowSharingData { get; set; }
         public bool AllowPushNotifications { get; set; }
         public bool AllowPushEmails { get; set; }
