@@ -90,7 +90,7 @@ namespace MyShopApp.Application.Users
             _logger.LogInformation("Аккаунт пользователя ID {UserId} успешно удален (soft-delete)", userId);
         }
 
-        // Метод для восстановления аккаунта (может быть вызван из AccountController)
+        // Метод для восстановления аккаунта
         public async Task<bool> RestoreAccountAsync(string phoneNumber, CancellationToken ct = default)
         {
             _logger.LogInformation("Попытка восстановления аккаунта с номером: {PhoneNumber}", phoneNumber);

@@ -36,7 +36,6 @@ namespace MyShopApp.WebApi.Controllers
                 return BadRequest(new { errorText = "Номер телефона не может быть пустым." });
             }
 
-            // Генерируем код
             var code = GenerateCode();
 
             // Сохраняем код с временем жизни 5 минут
@@ -46,8 +45,7 @@ namespace MyShopApp.WebApi.Controllers
             _logger.LogInformation("Для номера {PhoneNumber} сгенерирован код: {Code}", input.PhoneNumber, code);
 
             // Проверяем существует ли пользователь (включая удаленных)
-            var user = await _userManager.Users
-                .FirstOrDefaultAsync(u => u.PhoneNumber == input.PhoneNumber, ct);
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == input.PhoneNumber, ct);
 
             var isNewUser = user == null;
             var isDeletedUser = user != null && user.IsDeleted;
@@ -67,7 +65,6 @@ namespace MyShopApp.WebApi.Controllers
         {
             _logger.LogInformation("Проверка кода для номера: {PhoneNumber}", input.PhoneNumber);
 
-            // Проверяем код
             if (!_codeStorage.TryGetValue(input.PhoneNumber, out var codeData))
             {
                 return BadRequest(new { errorText = "Код не найден. Запросите новый код." });
@@ -87,9 +84,8 @@ namespace MyShopApp.WebApi.Controllers
             // Код верный, удаляем его из хранилища
             _codeStorage.Remove(input.PhoneNumber);
 
-            // Ищем пользователя ВКЛЮЧАЯ УДАЛЕННЫХ
-            var user = await _userManager.Users
-                .FirstOrDefaultAsync(u => u.PhoneNumber == input.PhoneNumber, ct);
+            // Ищем пользователя (ВКЛЮЧАЯ УДАЛЕННЫХ)
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == input.PhoneNumber, ct);
 
             var isNewUser = false;
             var isRestored = false;
@@ -133,12 +129,10 @@ namespace MyShopApp.WebApi.Controllers
                     }
 
                     isRestored = true;
-                    _logger.LogInformation("Аккаунт восстановлен для номера: {PhoneNumber}, ID: {UserId}",
-                        input.PhoneNumber, user.Id);
+                    _logger.LogInformation("Аккаунт восстановлен для номера: {PhoneNumber}, ID: {UserId}", input.PhoneNumber, user.Id);
                 }
                 else
                 {
-                    // Аккаунт удален более 30 дней назад
                     _logger.LogWarning("Попытка входа в удаленный >30 дней аккаунт: {PhoneNumber}", input.PhoneNumber);
                     return BadRequest(new { errorText = "Аккаунт был удален более 30 дней назад. Создайте новый аккаунт." });
                 }

@@ -11,7 +11,7 @@ namespace MyShopApp.Domain.Users
         public bool AllowPushSms { get; set; }
         public DateTime CreatedAt { get; set; }
         public bool IsDeleted { get; set; }
-        public DateTime? DeletedAt { get; set; } 
+        public DateTime? DeletedAt { get; set; }
 
         // Свойство для проверки возможности восстановления (30 дней)
         public bool CanBeRestored => DeletedAt.HasValue && DeletedAt.Value.AddDays(30) > DateTime.UtcNow;
