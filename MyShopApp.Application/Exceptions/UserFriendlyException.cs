@@ -14,6 +14,28 @@
             Code = code;
         }
 
+        #region ParentCategories
+
+        public static void PARENT_CATEGORY_WITH_SPECIFIED_ID_WAS_NOT_FOUND(long id) =>
+            throw new UserFriendlyException("PARENT_CATEGORIES:00001", $"Родительская категория с ID {id} не найдена.");
+
+        public static void PARENT_CATEGORY_NAME_CAN_NOT_BE_EMPTY() =>
+            throw new UserFriendlyException("PARENT_CATEGORIES:00002", "Название родительской категории не может быть пустым.");
+
+        public static void PARENT_CATEGORY_WITH_NAME_ALREADY_EXISTS(string name) =>
+            throw new UserFriendlyException("PARENT_CATEGORIES:00003", $"Родительская категория с названием '{name}' уже существует.");
+
+        public static void PARENT_CATEGORY_CANNOT_BE_DELETED_HAS_CATEGORIES() =>
+            throw new UserFriendlyException("PARENT_CATEGORIES:00004", "Невозможно удалить родительскую категорию, так как она содержит категории.");
+
+        public static void CATEGORY_ALREADY_IN_PARENT() =>
+            throw new UserFriendlyException("PARENT_CATEGORIES:00005", "Категория уже добавлена в эту родительскую категорию.");
+
+        public static void CATEGORY_NOT_IN_PARENT() =>
+            throw new UserFriendlyException("PARENT_CATEGORIES:00006", "Категория не принадлежит этой родительской категории.");
+
+        #endregion
+
         #region Categories
 
         public static void CATEGORY_NAME_CAN_NOT_BE_EMPTY() =>

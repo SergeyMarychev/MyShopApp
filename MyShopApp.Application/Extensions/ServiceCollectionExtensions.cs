@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MyShopApp.Application.Categories;
+using MyShopApp.Application.ParentCategories;
 using MyShopApp.Application.ProductGroups;
 using MyShopApp.Application.Products;
 using MyShopApp.Application.Users;
@@ -11,7 +12,7 @@ namespace MyShopApp.Application.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
-
+            services.AddTransient<IParentCategoryAppService, ParentCategoryAppService>();
             services.AddTransient<ICategoryAppService, CategoryAppService>();
             services.AddTransient<IProductAppService, ProductAppService>();
             services.AddTransient<IProductGroupAppService, ProductGroupAppService>();
