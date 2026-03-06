@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MyShopApp.Domain.Categories;
+using MyShopApp.Domain.ParentCategories;
 using MyShopApp.Domain.ProductGroups;
 using MyShopApp.Domain.Products;
 using MyShopApp.Domain.Roles;
@@ -14,6 +15,7 @@ namespace MyShopApp.Infrastructure
         IdentityUserClaim<long>, IdentityUserRole<long>, 
         IdentityUserLogin<long>, RoleClaim, IdentityUserToken<long>>
     {
+        public DbSet<ParentCategory> ParentCategories { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductGroup> ProductGroups { get; set; }
