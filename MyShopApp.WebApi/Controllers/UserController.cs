@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MyShopApp.Application.Contracts.Users;
 using MyShopApp.Application.Users;
+using MyShopApp.Domain.Users;
 using System.Security.Claims;
 
 namespace MyShopApp.WebApi.Controllers
@@ -10,10 +12,12 @@ namespace MyShopApp.WebApi.Controllers
     public class UserController : BaseApiController
     {
         private readonly IUserAppService _userAppService;
+        private readonly SignInManager<User> _signInManager;
 
-        public UserController(IUserAppService userAppService)
+        public UserController(IUserAppService userAppService, SignInManager<User> signInManager)
         {
             _userAppService = userAppService;
+            _signInManager = signInManager;
         }
 
         private long GetCurrentUserId()
@@ -28,15 +32,15 @@ namespace MyShopApp.WebApi.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<IActionResult> GetUser(CancellationToken ct)
+        public async Task<IActionResult> Get(CancellationToken ct)
         {
             var userId = GetCurrentUserId();
-            var result = await _userAppService.GetUserAsync(userId, ct);
+            var result = await _userAppService.GetAsync(userId, ct);
             return Ok(result);
         }
 
         [HttpPut("[action]")]
-        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserDto input, CancellationToken ct)
+        public async Task<IActionResult> Update([FromBody] UpdateUserDto input, CancellationToken ct)
         {
             var userId = GetCurrentUserId();
 
@@ -45,16 +49,20 @@ namespace MyShopApp.WebApi.Controllers
                 return Forbid();
             }
 
-            await _userAppService.UpdateUserAsync(input, ct);
+            await _userAppService.UpdateAsync(input, ct);
             return Ok();
         }
 
         [HttpDelete("[action]")]
-        public async Task<IActionResult> DeleteAccount(CancellationToken ct)
+        public async Task<IActionResult> Delete(CancellationToken ct)
         {
             var userId = GetCurrentUserId();
-            await _userAppService.DeleteAccountAsync(userId, ct);
-            return Ok();
+            await _userAppService.DeleteAsync(userId, ct);
+
+            // После удаления выходим из системы
+            await _signInManager.SignOutAsync();
+
+            return Ok(new { message = "Аккаунт успешно удален" });
         }
     }
 }

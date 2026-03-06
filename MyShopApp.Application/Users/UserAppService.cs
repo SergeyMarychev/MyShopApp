@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using MyShopApp.Application.Authorization;
 using MyShopApp.Application.Contracts.Users;
 using MyShopApp.Application.Exceptions;
 using MyShopApp.Domain.Users;
@@ -22,7 +23,7 @@ namespace MyShopApp.Application.Users
             _logger = logger;
         }
 
-        public async Task<UserDto> GetUserAsync(long userId, CancellationToken ct = default)
+        public async Task<UserDto> GetAsync(long userId, CancellationToken ct = default)
         {
             _logger.LogInformation("Получение профиля пользователя ID: {UserId}", userId);
 
@@ -37,7 +38,7 @@ namespace MyShopApp.Application.Users
             return _mapper.Map<UserDto>(user);
         }
 
-        public async Task UpdateUserAsync(UpdateUserDto input, CancellationToken ct = default)
+        public async Task UpdateAsync(UpdateUserDto input, CancellationToken ct = default)
         {
             _logger.LogInformation("Обновление профиля пользователя ID: {UserId}", input.Id);
 
@@ -63,7 +64,7 @@ namespace MyShopApp.Application.Users
             _logger.LogInformation("Профиль пользователя ID {UserId} успешно обновлен", input.Id);
         }
 
-        public async Task DeleteAccountAsync(long userId, CancellationToken ct = default)
+        public async Task DeleteAsync(long userId, CancellationToken ct = default)
         {
             _logger.LogInformation("Удаление аккаунта пользователя ID: {UserId}", userId);
 
@@ -77,7 +78,7 @@ namespace MyShopApp.Application.Users
 
             // Мягкое удаление с записью времени
             user.IsDeleted = true;
-            user.DeletedAt = DateTime.UtcNow; // ЭТО ВАЖНО!
+            user.DeletedAt = DateTime.UtcNow;
 
             var updateResult = await _userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
@@ -88,38 +89,6 @@ namespace MyShopApp.Application.Users
             }
 
             _logger.LogInformation("Аккаунт пользователя ID {UserId} успешно удален (soft-delete)", userId);
-        }
-
-        // Метод для восстановления аккаунта
-        public async Task<bool> RestoreAccountAsync(string phoneNumber, CancellationToken ct = default)
-        {
-            _logger.LogInformation("Попытка восстановления аккаунта с номером: {PhoneNumber}", phoneNumber);
-
-            var user = await _userRepository.GetByPhoneNumberIncludeDeletedAsync(phoneNumber, ct);
-
-            if (user == null || !user.IsDeleted)
-            {
-                return false;
-            }
-
-            if (!user.CanBeRestored)
-            {
-                _logger.LogWarning("Аккаунт с номером {PhoneNumber} не может быть восстановлен (истек срок)", phoneNumber);
-                return false;
-            }
-
-            user.IsDeleted = false;
-            user.DeletedAt = null;
-
-            var updateResult = await _userManager.UpdateAsync(user);
-            if (!updateResult.Succeeded)
-            {
-                _logger.LogError("Ошибка восстановления аккаунта: {Errors}", string.Join(", ", updateResult.Errors.Select(e => e.Description)));
-                return false;
-            }
-
-            _logger.LogInformation("Аккаунт с номером {PhoneNumber} успешно восстановлен", phoneNumber);
-            return true;
         }
     }
 }

@@ -2,6 +2,7 @@
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MyShopApp.Application.Authorization;
+using MyShopApp.Application.Authorization.Settings;
 using MyShopApp.Application.Extensions;
 using MyShopApp.Domain.Roles;
 using MyShopApp.Domain.Users;
@@ -31,6 +32,18 @@ try
     logger.Information("Конфигурация хоста...");
 
     var configuration = builder.Configuration;
+
+    builder.Services.AddDistributedMemoryCache();
+
+    builder.Services.Configure<SmsCodeSettings>
+    (
+        builder.Configuration.GetSection("SmsCodeSettings")
+    );
+
+    builder.Services.Configure<AccountSettings>
+    (
+        builder.Configuration.GetSection("AccountSettings")
+    );
 
     builder.Services.AddInfrastructureServices(configuration);
     builder.Services.AddApplicationServices(configuration);

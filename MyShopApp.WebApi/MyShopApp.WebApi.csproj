@@ -33,4 +33,8 @@
     <ProjectReference Include="..\MyShopApp.Infrastructure\MyShopApp.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Authorization\Settings\" />
+  </ItemGroup>
+
 </Project>

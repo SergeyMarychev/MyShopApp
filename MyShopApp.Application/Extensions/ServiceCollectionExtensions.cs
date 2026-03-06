@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MyShopApp.Application.Authorization;
 using MyShopApp.Application.Categories;
 using MyShopApp.Application.ProductGroups;
 using MyShopApp.Application.Products;
@@ -16,6 +17,8 @@ namespace MyShopApp.Application.Extensions
             services.AddTransient<IProductAppService, ProductAppService>();
             services.AddTransient<IProductGroupAppService, ProductGroupAppService>();
             services.AddTransient<IUserAppService, UserAppService>();
+
+            services.AddTransient<AccountRecoveryService>();
 
             return services;
         }

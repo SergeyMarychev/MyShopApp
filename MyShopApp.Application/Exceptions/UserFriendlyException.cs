@@ -79,8 +79,26 @@
         public static void PHONE_NUMBER_CAN_NOT_BE_EMPTY() =>
             throw new UserFriendlyException("AUTH:00001", "Номер телефона не может быть пустым.");
 
-        public static void INVALID_OR_EXPIRED_CODE() =>
-            throw new UserFriendlyException("AUTH:00002", "Неверный или истекший код подтверждения.");
+        public static void CODE_NOT_FOUND() =>
+            throw new UserFriendlyException("AUTH:00002", "Код не найден. Запросите новый код.");
+
+        public static void CODE_EXPIRED() =>
+            throw new UserFriendlyException("AUTH:00003", "Код истек. Запросите новый код.");
+
+        public static void MAX_ATTEMPTS_EXCEEDED() =>
+            throw new UserFriendlyException("AUTH:00004", "Превышено максимальное количество попыток. Запросите новый код.");
+
+        public static void INVALID_CODE(int attempts, int maxAttempts) =>
+            throw new UserFriendlyException("AUTH:00005", $"Неверный код. Осталось попыток: {maxAttempts - attempts}");
+
+        public static void ACCOUNT_DELETED_PERMANENTLY() =>
+            throw new UserFriendlyException("AUTH:00006", "Аккаунт был удален более 30 дней назад. Создайте новый аккаунт.");
+
+        public static void USER_NOT_FOUND(string phoneNumber) =>
+            throw new UserFriendlyException("AUTH:00007", $"Пользователь с номером {phoneNumber} не найден.");
+
+        public static void ACCOUNT_NOT_DELETED() =>
+            throw new UserFriendlyException("AUTH:00008", "Аккаунт не удален. Используйте обычный вход.");
 
         #endregion
 
