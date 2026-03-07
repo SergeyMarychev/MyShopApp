@@ -5,5 +5,6 @@ namespace MyShopApp.Application.Contracts.Categories.Dto
     public sealed class UpdateCategoryDto : EntityDto
     {
         public string Name { get; set; } = string.Empty;
+        public string Image { get; set; } = string.Empty;
     }
 }

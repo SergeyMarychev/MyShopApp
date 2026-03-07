@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MyShopApp.Domain.Categories;
 using MyShopApp.Domain.Common;
+using MyShopApp.Domain.ParentCategories;
 using MyShopApp.Domain.ProductGroups;
 using MyShopApp.Domain.Products;
 using MyShopApp.Domain.Users;
@@ -20,6 +21,7 @@ namespace MyShopApp.Infrastructure.Extensions
                 options.UseNpgsql(configuration.GetConnectionString("Default")));
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IParentCategoryRepository, ParentCategoryRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IProductGroupRepository, ProductGroupRepository>();

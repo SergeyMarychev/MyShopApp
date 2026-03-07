@@ -1,4 +1,5 @@
 ﻿using MyShopApp.Domain.Common;
+using MyShopApp.Domain.ParentCategories;
 
 namespace MyShopApp.Domain.Categories
 {
@@ -6,5 +7,8 @@ namespace MyShopApp.Domain.Categories
     {
         public string Name { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
+        public string Image { get; set; } = string.Empty;
+        public long? ParentCategoryId { get; set; }
+        public ParentCategory? ParentCategory { get; set; }
     }
 }
