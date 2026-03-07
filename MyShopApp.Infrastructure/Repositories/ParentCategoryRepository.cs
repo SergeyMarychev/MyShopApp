@@ -29,21 +29,6 @@ namespace MyShopApp.Infrastructure.Repositories
         {
             return await _table.FirstOrDefaultAsync(x => x.Name.ToLower() == name.ToLower(), ct);
         }
-
-        public async Task<ParentCategory?> GetWithCategoriesAsync(long id, CancellationToken ct = default)
-        {
-            return await _table
-                .Include(x => x.Categories)
-                .FirstOrDefaultAsync(x => x.Id == id, ct);
-        }
-
-        public async Task<IEnumerable<ParentCategory>> GetAllWithCategoriesAsync(CancellationToken ct = default)
-        {
-            return await _table
-                .Include(x => x.Categories)
-                .ToListAsync(ct);
-        }
-
         public async Task AddAsync(ParentCategory parentCategory, CancellationToken ct = default)
         {
             await _table.AddAsync(parentCategory, ct);

@@ -53,33 +53,6 @@ namespace MyShopApp.Application.ParentCategories
             return _mapper.Map<ParentCategoryDto>(parentCategory);
         }
 
-        public async Task<ParentCategoryDto> GetWithCategoriesAsync(long id, CancellationToken ct = default)
-        {
-            _logger.LogInformation("Начато получение родительской категории с категориями ID = {Id}.", id);
-
-            var parentCategory = await _parentCategoryRepository.GetWithCategoriesAsync(id, ct);
-            if (parentCategory == null)
-            {
-                _logger.LogError("Родительская категория ID = {Id} не найдена.", id);
-                UserFriendlyException.PARENT_CATEGORY_WITH_SPECIFIED_ID_WAS_NOT_FOUND(id);
-            }
-
-            _logger.LogInformation("Родительская категория ID = {Id} содержит {Count} категорий.", id, parentCategory.Categories.Count);
-
-            return _mapper.Map<ParentCategoryDto>(parentCategory);
-        }
-
-        public async Task<IEnumerable<ParentCategoryDto>> GetAllWithCategoriesAsync(CancellationToken ct = default)
-        {
-            _logger.LogInformation("Начато получение всех родительских категорий с категориями.");
-
-            var parentCategories = await _parentCategoryRepository.GetAllWithCategoriesAsync(ct);
-
-            _logger.LogInformation("Получено {Count} родительских категорий с категориями.", parentCategories.Count());
-
-            return _mapper.Map<IEnumerable<ParentCategoryDto>>(parentCategories);
-        }
-
         public async Task<ParentCategoryDto> CreateAsync(CreateParentCategoryDto input, CancellationToken ct = default)
         {
             _logger.LogInformation("Начато создание родительской категории: Название = {Name}.", input.Name);
@@ -128,7 +101,7 @@ namespace MyShopApp.Application.ParentCategories
             var existingParentCategory = await _parentCategoryRepository.GetByNameAsync(input.Name, ct);
             if (existingParentCategory != null && existingParentCategory.Id != input.Id)
             {
-                _logger.LogError( "Ошибка обновления родительской категории ID = {Id}: категория с названием '{Name}' уже существует.", input.Id, input.Name);
+                _logger.LogError("Ошибка обновления родительской категории ID = {Id}: категория с названием '{Name}' уже существует.", input.Id, input.Name);
                 UserFriendlyException.PARENT_CATEGORY_WITH_NAME_ALREADY_EXISTS(input.Name);
             }
 
@@ -144,20 +117,26 @@ namespace MyShopApp.Application.ParentCategories
         {
             _logger.LogInformation("Начато удаление родительской категории ID = {Id}.", id);
 
-            var parentCategory = await _parentCategoryRepository.GetWithCategoriesAsync(id, ct);
+            // Получаем родительскую категорию
+            var parentCategory = await _parentCategoryRepository.GetAsync(id, ct);
             if (parentCategory == null)
             {
                 _logger.LogError("Ошибка удаления: родительская категория ID = {Id} не найдена.", id);
                 UserFriendlyException.PARENT_CATEGORY_WITH_SPECIFIED_ID_WAS_NOT_FOUND(id);
             }
 
-            if (parentCategory.Categories.Any())
+            // Получаем все категории и проверяем, есть ли привязанные к этой родительской категории
+            var allCategories = await _categoryRepository.GetAllAsync(ct);
+            var categoriesInParent = allCategories.Where(c => c.ParentCategoryId == id);
+
+            if (categoriesInParent.Any())
             {
-                _logger.LogWarning("Родительская категория ID = {Id} содержит {Count} категорий. Удаление невозможно.", id, parentCategory.Categories.Count);
+                _logger.LogWarning("Родительская категория ID = {Id} содержит {Count} категорий. Удаление невозможно.", id, categoriesInParent.Count());
                 UserFriendlyException.PARENT_CATEGORY_CANNOT_BE_DELETED_HAS_CATEGORIES();
             }
 
             _parentCategoryRepository.Delete(parentCategory);
+            await _parentCategoryRepository.UnitOfWork.SaveChangesAsync(ct);
 
             _logger.LogInformation("Родительская категория ID = {Id} успешно удалена.", id);
         }
@@ -166,7 +145,7 @@ namespace MyShopApp.Application.ParentCategories
         {
             _logger.LogInformation("Начато добавление категории ID = {CategoryId} в родительскую категорию ID = {ParentId}.", input.CategoryId, input.ParentCategoryId);
 
-            var parentCategory = await _parentCategoryRepository.GetWithCategoriesAsync(input.ParentCategoryId, ct);
+            var parentCategory = await _parentCategoryRepository.GetAsync(input.ParentCategoryId, ct);
             if (parentCategory == null)
             {
                 _logger.LogError("Родительская категория ID = {Id} не найдена.", input.ParentCategoryId);
@@ -180,7 +159,8 @@ namespace MyShopApp.Application.ParentCategories
                 UserFriendlyException.CATEGORY_WITH_SPECIFIED_ID_WAS_NOT_FOUND(input.CategoryId);
             }
 
-            if (parentCategory.Categories.Any(c => c.Id == input.CategoryId))
+            // Проверяем, не привязана ли уже категория к этой родительской категории
+            if (category.ParentCategoryId == input.ParentCategoryId)
             {
                 _logger.LogWarning("Категория ID = {CategoryId} уже добавлена в родительскую категорию ID = {ParentId}.", input.CategoryId, input.ParentCategoryId);
                 UserFriendlyException.CATEGORY_ALREADY_IN_PARENT();
@@ -197,7 +177,7 @@ namespace MyShopApp.Application.ParentCategories
         {
             _logger.LogInformation("Начато удаление категории ID = {CategoryId} из родительской категории ID = {ParentId}.", categoryId, parentCategoryId);
 
-            var parentCategory = await _parentCategoryRepository.GetWithCategoriesAsync(parentCategoryId, ct);
+            var parentCategory = await _parentCategoryRepository.GetAsync(parentCategoryId, ct);
             if (parentCategory == null)
             {
                 _logger.LogError("Родительская категория ID = {Id} не найдена.", parentCategoryId);
