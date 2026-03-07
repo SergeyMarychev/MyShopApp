@@ -6,8 +6,6 @@ namespace MyShopApp.Application.ParentCategories
     {
         Task<IEnumerable<ParentCategoryDto>> GetAllAsync(CancellationToken ct = default);
         Task<ParentCategoryDto> GetAsync(long id, CancellationToken ct = default);
-        Task<ParentCategoryDto> GetWithCategoriesAsync(long id, CancellationToken ct = default);
-        Task<IEnumerable<ParentCategoryDto>> GetAllWithCategoriesAsync(CancellationToken ct = default);
         Task<ParentCategoryDto> CreateAsync(CreateParentCategoryDto input, CancellationToken ct = default);
         Task<ParentCategoryDto> UpdateAsync(UpdateParentCategoryDto input, CancellationToken ct = default);
         Task DeleteAsync(long id, CancellationToken ct = default);

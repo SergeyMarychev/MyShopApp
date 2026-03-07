@@ -46,36 +46,6 @@ namespace MyShopApp.WebApi.Controllers
         }
 
         /// <summary>
-        /// Получение родительской категории со всеми вложенными категориями
-        /// </summary>
-        [HttpGet("[action]")]
-        public async Task<IActionResult> GetWithCategories(long id, CancellationToken ct = default)
-        {
-            _logger.LogInformation("Получен запрос: получение родительской категории с категориями по ID = {Id}.", id);
-
-            var result = await _parentCategoryAppService.GetWithCategoriesAsync(id, ct);
-
-            _logger.LogInformation("Отправлен ответ: родительская категория ID = {Id} содержит {Count} категорий.", id, result.Categories.Count);
-
-            return Ok(result);
-        }
-
-        /// <summary>
-        /// Получение всех родительских категорий со всеми вложенными категориями
-        /// </summary>
-        [HttpGet("[action]")]
-        public async Task<IActionResult> GetAllWithCategories(CancellationToken ct = default)
-        {
-            _logger.LogInformation("Получен запрос: получение всех родительских категорий с категориями.");
-
-            var result = await _parentCategoryAppService.GetAllWithCategoriesAsync(ct);
-
-            _logger.LogInformation("Отправлен ответ: найдено {Count} родительских категорий с категориями.", result.Count());
-
-            return Ok(result);
-        }
-
-        /// <summary>
         /// Создание родительской категории
         /// </summary>
         [HttpPost("[action]")]
