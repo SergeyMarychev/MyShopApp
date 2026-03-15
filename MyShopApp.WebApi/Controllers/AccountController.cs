@@ -48,15 +48,12 @@ namespace MyShopApp.WebApi.Controllers
         /// <summary>
         /// Формирует ключ для кэша на основе номера телефона
         /// </summary>
-        /// <param name="phoneNumber">Номер телефона</param>
         /// <returns>Ключ для кэша с префиксом</returns>
         private string GetCacheKey(string phoneNumber) => $"{CACHE_KEY_PREFIX}{phoneNumber}";
 
         /// <summary>
         /// Получает данные SMS кода из кэша по номеру телефона
         /// </summary>
-        /// <param name="phoneNumber">Номер телефона</param>
-        /// <param name="ct">Токен отмены</param>
         /// <returns>Данные кода или null, если не найден</returns>
         private async Task<SmsCodeData?> GetCodeDataAsync(string phoneNumber, CancellationToken ct = default)
         {
@@ -75,9 +72,6 @@ namespace MyShopApp.WebApi.Controllers
         /// <summary>
         /// Сохраняет данные SMS кода в кэш
         /// </summary>
-        /// <param name="phoneNumber">Номер телефона</param>
-        /// <param name="data">Данные кода</param>
-        /// <param name="ct">Токен отмены</param>
         private async Task SetCodeDataAsync(string phoneNumber, SmsCodeData data, CancellationToken ct = default)
         {
             var cacheKey = GetCacheKey(phoneNumber);
@@ -95,8 +89,6 @@ namespace MyShopApp.WebApi.Controllers
         /// <summary>
         /// Удаляет данные SMS кода из кэша
         /// </summary>
-        /// <param name="phoneNumber">Номер телефона</param>
-        /// <param name="ct">Токен отмены</param>
         private async Task RemoveCodeDataAsync(string phoneNumber, CancellationToken ct = default)
         {
             var cacheKey = GetCacheKey(phoneNumber);
@@ -111,8 +103,6 @@ namespace MyShopApp.WebApi.Controllers
         /// 2. Проверяет кулдаун (нельзя запрашивать код в течение 1 минуты)
         /// 3. Генерирует и сохраняет новый код в кэш
         /// </summary>
-        /// <param name="phoneNumber">Номер телефона из URL</param>
-        /// <param name="ct">Токен отмены</param>
         /// <returns>Информация о запросе кода</returns>
         [HttpPost("[action]")]
         public async Task<IActionResult> Login(string phoneNumber, CancellationToken ct)
@@ -202,8 +192,6 @@ namespace MyShopApp.WebApi.Controllers
         /// 2. Проверяет срок действия и количество попыток
         /// 3. При успехе генерирует JWT токен
         /// </summary>
-        /// <param name="input">DTO с номером телефона и кодом</param>
-        /// <param name="ct">Токен отмены</param>
         /// <returns>JWT токен и данные пользователя</returns>
         [HttpPost("[action]")]
         public async Task<IActionResult> VerifySmsCode(VerifySmsCodeDto input, CancellationToken ct)
@@ -319,7 +307,6 @@ namespace MyShopApp.WebApi.Controllers
         /// <summary>
         /// Генерирует JWT токен для авторизованного пользователя
         /// </summary>
-        /// <param name="user">Объект пользователя</param>
         /// <returns>JWT токен и время его жизни в секундах</returns>
         private async Task<(string Token, int ExpiresIn)> GenerateJwtTokenAsync(User user)
         {
