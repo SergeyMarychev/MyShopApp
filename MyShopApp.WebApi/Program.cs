@@ -48,6 +48,7 @@ try
     builder.Services.AddInfrastructureServices(configuration);
     builder.Services.AddApplicationServices(configuration);
 
+    builder.Services.AddScoped<ITokenGenerator, TokenGenerator>();
     builder.Services.AddScoped<IAppSession, Session>();
 
     builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

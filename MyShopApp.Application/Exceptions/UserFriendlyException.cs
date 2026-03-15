@@ -113,15 +113,6 @@
         public static void INVALID_CODE(int attempts, int maxAttempts) =>
             throw new UserFriendlyException("AUTH:00005", $"Неверный код. Осталось попыток: {maxAttempts - attempts}");
 
-        public static void ACCOUNT_DELETED_PERMANENTLY() =>
-            throw new UserFriendlyException("AUTH:00006", "Аккаунт был удален более 30 дней назад. Создайте новый аккаунт.");
-
-        public static void USER_NOT_FOUND(string phoneNumber) =>
-            throw new UserFriendlyException("AUTH:00007", $"Пользователь с номером {phoneNumber} не найден.");
-
-        public static void ACCOUNT_NOT_DELETED() =>
-            throw new UserFriendlyException("AUTH:00008", "Аккаунт не удален. Используйте обычный вход.");
-
         #endregion
 
         #region Users

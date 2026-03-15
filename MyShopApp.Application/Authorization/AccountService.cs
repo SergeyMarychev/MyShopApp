@@ -1,39 +1,35 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Caching.Distributed;
+﻿using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using MyShopApp.Application.Authorization.Models;
 using MyShopApp.Application.Authorization.Settings;
 using MyShopApp.Application.Cache;
 using MyShopApp.Application.Contracts.Authorization.Dto;
 using MyShopApp.Application.Exceptions;
 using MyShopApp.Domain.Users;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Text.Json;
 
 namespace MyShopApp.Application.Authorization
 {
     internal sealed class AccountService : IAccountService
     {
-        private readonly IUserRepository _userRepository; 
-        private readonly UserManager<User> _userManager;
+        private readonly IUserRepository _userRepository;
+        private readonly ITokenGenerator _tokenGenerator; 
         private readonly ILogger<AccountService> _logger;
         private readonly SmsCodeSettings _smsSettings;
         private readonly IDistributedCache _cache;
         private readonly AccountRecoveryService _recoveryService;
 
         public AccountService(
-            IUserRepository userRepository, 
-            UserManager<User> userManager,
+            IUserRepository userRepository,
+            ITokenGenerator tokenGenerator, 
             ILogger<AccountService> logger,
             IOptions<SmsCodeSettings> smsSettings,
             IDistributedCache cache,
             AccountRecoveryService recoveryService)
         {
             _userRepository = userRepository;
-            _userManager = userManager;
+            _tokenGenerator = tokenGenerator;
             _logger = logger;
             _smsSettings = smsSettings.Value;
             _cache = cache;
@@ -70,53 +66,12 @@ namespace MyShopApp.Application.Authorization
             return random.Next(100000, 999999).ToString();
         }
 
-        private async Task<TokenDto> GenerateJwtTokenAsync(User user)
-        {
-            var roles = await _userManager.GetRolesAsync(user);
-
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimsIdentity.DefaultNameClaimType, user.UserName),
-                new Claim(ClaimTypes.MobilePhone, user.PhoneNumber ?? "")
-            };
-
-            foreach (var role in roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-            }
-
-            var now = DateTime.UtcNow;
-            var expires = now.Add(TimeSpan.FromMinutes(AuthOptions.LIFETIME));
-
-            var jwt = new JwtSecurityToken(
-                issuer: AuthOptions.ISSUER,
-                audience: AuthOptions.AUDIENCE,
-                claims: claims,
-                notBefore: now,
-                expires: expires,
-                signingCredentials: new SigningCredentials(
-                    AuthOptions.GetSymmetricSecurityKey(),
-                    SecurityAlgorithms.HmacSha256)
-            );
-
-            var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
-
-            return new TokenDto
-            {
-                Token = encodedJwt,
-                ExpiresIn = AuthOptions.LIFETIME * 60
-            };
-        }
-
         private async Task<User> GetOrCreateUserAsync(string phoneNumber, CancellationToken ct)
         {
-            // Используем репозиторий для поиска пользователя (включая удаленных)
             var user = await _userRepository.GetByPhoneNumberIncludeDeletedAsync(phoneNumber, ct);
 
             if (user == null)
             {
-                // Создаём нового пользователя
                 user = new User
                 {
                     PhoneNumber = phoneNumber,
@@ -131,10 +86,8 @@ namespace MyShopApp.Application.Authorization
             }
             else if (user.IsDeleted)
             {
-                // Проверяем, можно ли восстановить аккаунт
                 if (_recoveryService.CanBeRestored(user.DeletedAt))
                 {
-                    // Восстанавливаем удалённого пользователя
                     user.IsDeleted = false;
                     user.DeletedAt = null;
                     _userRepository.Update(user);
@@ -144,7 +97,6 @@ namespace MyShopApp.Application.Authorization
                 }
                 else
                 {
-                    // Если срок восстановления истек - создаем нового пользователя
                     _logger.LogInformation("Срок восстановления истек. Создаем новый аккаунт для номера: {PhoneNumber}", phoneNumber);
 
                     var newUser = new User
@@ -174,7 +126,6 @@ namespace MyShopApp.Application.Authorization
                 UserFriendlyException.PHONE_NUMBER_CAN_NOT_BE_EMPTY();
             }
 
-            // Проверяем кулдаун
             var existingData = await GetCodeDataAsync(phoneNumber, ct);
             if (existingData != null)
             {
@@ -222,7 +173,6 @@ namespace MyShopApp.Application.Authorization
         {
             _logger.LogInformation("Проверка кода для номера: {PhoneNumber}", input.PhoneNumber);
 
-            // 1. Проверяем код
             var codeData = await GetCodeDataAsync(input.PhoneNumber, ct);
 
             if (codeData == null)
@@ -252,11 +202,9 @@ namespace MyShopApp.Application.Authorization
 
             await RemoveCodeDataAsync(input.PhoneNumber, ct);
 
-            // 2. Получаем или создаем пользователя через репозиторий
             var user = await GetOrCreateUserAsync(input.PhoneNumber, ct);
 
-            // 3. Генерируем JWT токен
-            return await GenerateJwtTokenAsync(user);
+            return await _tokenGenerator.GenerateJwtTokenAsync(user);
         }
     }
 }
