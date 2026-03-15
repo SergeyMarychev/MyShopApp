@@ -126,6 +126,8 @@ namespace MyShopApp.WebApi.Controllers
 
             var user = await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == phoneNumber, ct);
 
+            var isRestoreMode = user != null && user.IsDeleted;
+
             if (user == null)
             {
                 // Создаем нового пользователя
@@ -148,31 +150,7 @@ namespace MyShopApp.WebApi.Controllers
             }
             else if (user.IsDeleted)
             {
-                // Используем сервис для проверки возможности восстановления
-                if (_recoveryService.CanBeRestored(user.DeletedAt))
-                {
-                    return Ok(new
-                    {
-                        phoneNumber,
-                        isDeleted = true,
-                        canBeRestored = true,
-                        remainingDays = _recoveryService.GetRemainingDays(user.DeletedAt),
-                        message = $"Аккаунт был удален. Осталось дней для восстановления: {_recoveryService.GetRemainingDays(user.DeletedAt)}"
-                    });
-                }
-                else
-                {
-                    // Получаем значение из настроек через сервис
-                    var recoveryDays = _recoveryService.GetRecoveryDays();
-
-                    return Ok(new
-                    {
-                        phoneNumber,
-                        isDeleted = true,
-                        canBeRestored = false,
-                        message = $"Аккаунт был удален более {recoveryDays} дней назад. Создайте новый аккаунт."
-                    });
-                }
+                _logger.LogInformation("Пользователь с номером {PhoneNumber} удален. Будет восстановлен после проверки кода.", phoneNumber);
             }
 
             // 2. Проверяем кулдаун через кэш
@@ -208,14 +186,15 @@ namespace MyShopApp.WebApi.Controllers
                 Expiry = DateTime.UtcNow.AddMinutes(_smsSettings.CodeLifetimeMinutes),
                 Attempts = 0,
                 CooldownUntil = DateTime.UtcNow.AddSeconds(_smsSettings.CooldownSeconds),
-                PhoneNumber = phoneNumber
+                PhoneNumber = phoneNumber,
+                IsRestoreMode = isRestoreMode,
             };
 
             await SetCodeDataAsync(phoneNumber, newData, ct);
 
-            _logger.LogInformation("Для номера {PhoneNumber} сгенерирован код: {Code}", phoneNumber, code);
+            _logger.LogInformation("Для номера {PhoneNumber} сгенерирован код: {Code}, режим: {Mode} ", phoneNumber, code, isRestoreMode ? "восстановление" : "вход");
 
-            return Ok(new { phoneNumber });
+            return Ok(phoneNumber);
         }
 
         /// <summary>
@@ -227,7 +206,7 @@ namespace MyShopApp.WebApi.Controllers
         /// <param name="ct">Токен отмены</param>
         /// <returns>JWT токен и данные пользователя</returns>
         [HttpPost("[action]")]
-        public async Task<IActionResult> VerifySmsCode([FromBody] VerifySmsCodeDto input, CancellationToken ct)
+        public async Task<IActionResult> VerifySmsCode(VerifySmsCodeDto input, CancellationToken ct)
         {
             _logger.LogInformation("Проверка кода для номера: {PhoneNumber}", input.PhoneNumber);
 
@@ -271,22 +250,37 @@ namespace MyShopApp.WebApi.Controllers
             }
 
             // Если это режим восстановления - восстанавливаем аккаунт
-            if (codeData.IsRestoreMode)
+            if (codeData.IsRestoreMode && user.IsDeleted)
             {
-                if (user.IsDeleted)
+                // Используем сервис для проверки
+                if (_recoveryService.CanBeRestored(user.DeletedAt))
                 {
-                    // Используем сервис для проверки
-                    if (_recoveryService.CanBeRestored(user.DeletedAt))
+                    user.IsDeleted = false;
+                    user.DeletedAt = null;
+                    await _userManager.UpdateAsync(user);
+                    _logger.LogInformation("Аккаунт восстановлен для номера: {PhoneNumber}", input.PhoneNumber);
+                }
+                else
+                {
+                    _logger.LogInformation("Срок восстановления истек. Создаем новый аккаунт для номера: {PhoneNumber}", input.PhoneNumber);
+
+                    var newUser = new User
                     {
-                        user.IsDeleted = false;
-                        user.DeletedAt = null;
-                        await _userManager.UpdateAsync(user);
-                        _logger.LogInformation("Аккаунт восстановлен для номера: {PhoneNumber}", input.PhoneNumber);
-                    }
-                    else
+                        PhoneNumber = input.PhoneNumber,
+                        UserName = input.PhoneNumber,
+                        CreatedAt = DateTime.UtcNow,
+                    };
+
+                    var createReasult = await _userManager.CreateAsync(newUser);
+                    if (!createReasult.Succeeded)
                     {
-                        UserFriendlyException.ACCOUNT_DELETED_PERMANENTLY();
+                        var errors = string.Join(", ", createReasult.Errors.Select(e => e.Description));
+                        _logger.LogError("Ошибка создания нового пользователя: {Errors}", errors);
+                        UserFriendlyException.USER_CREATION_FAILED(errors);
                     }
+
+                    user = newUser;
+                    _logger.LogInformation("Создан новый пользователь (Старый удален >30 дней) с Id: {UserId}", user.Id);
                 }
             }
 
@@ -296,11 +290,7 @@ namespace MyShopApp.WebApi.Controllers
             return Ok(new
             {
                 accessToken = tokenResponse.Token,
-                expiresIn = tokenResponse.ExpiresIn,
-                userId = user.Id,
-                phoneNumber = user.PhoneNumber,
-                userName = user.UserName,
-                isRestored = codeData.IsRestoreMode // Сообщаем клиенту, что аккаунт был восстановлен
+                expiresIn = tokenResponse.ExpiresIn
             });
         }
 
@@ -314,54 +304,6 @@ namespace MyShopApp.WebApi.Controllers
             await _signInManager.SignOutAsync();
             _logger.LogInformation("Выход из системы");
             return Ok();
-        }
-
-        [HttpPost("[action]")]
-        public async Task<IActionResult> Restore(string phoneNumber, CancellationToken ct)
-        {
-            _logger.LogInformation("Запрос на восстановление аккаунта для номера: {PhoneNumber}", phoneNumber);
-
-            if (string.IsNullOrWhiteSpace(phoneNumber))
-            {
-                UserFriendlyException.PHONE_NUMBER_CAN_NOT_BE_EMPTY();
-            }
-
-            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == phoneNumber, ct);
-
-            if (user == null)
-            {
-                UserFriendlyException.USER_NOT_FOUND(phoneNumber);
-            }
-
-            if (!user.IsDeleted)
-            {
-                UserFriendlyException.ACCOUNT_NOT_DELETED();
-            }
-
-            // Используем сервис для проверки
-            if (!_recoveryService.CanBeRestored(user.DeletedAt))
-            {
-                UserFriendlyException.ACCOUNT_DELETED_PERMANENTLY();
-            }
-
-            // Генерируем код для восстановления
-            var code = GenerateCode();
-
-            var newData = new SmsCodeData
-            {
-                Code = code,
-                Expiry = DateTime.UtcNow.AddMinutes(_smsSettings.CodeLifetimeMinutes),
-                Attempts = 0,
-                CooldownUntil = DateTime.UtcNow.AddSeconds(_smsSettings.CooldownSeconds),
-                PhoneNumber = phoneNumber,
-                IsRestoreMode = true
-            };
-
-            await SetCodeDataAsync(phoneNumber, newData, ct);
-
-            _logger.LogInformation("Для восстановления аккаунта {PhoneNumber} сгенерирован код: {Code}", phoneNumber, code);
-
-            return Ok(new { phoneNumber, message = "Код для восстановления отправлен" });
         }
 
         /// <summary>
