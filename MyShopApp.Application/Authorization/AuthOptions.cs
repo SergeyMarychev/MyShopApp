@@ -1,7 +1,7 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-namespace MyShopApp.WebApi.Authorization
+namespace MyShopApp.Application.Authorization
 {
     public static class AuthOptions
     {
