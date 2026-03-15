@@ -6,6 +6,6 @@ namespace MyShopApp.Application.Contracts.ParentCategories.Dto
     public sealed class ParentCategoryDto : EntityDto
     {
         public string Name { get; set; } = string.Empty;
-        public List<CategoryDto> Categories { get; set; } = new();
+        public IEnumerable<CategoryDto> Categories { get; set; }
     }
 }
