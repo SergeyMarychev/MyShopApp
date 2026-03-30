@@ -20,6 +20,7 @@ namespace MyShopApp.Infrastructure
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductGroup> ProductGroups { get; set; }
         public DbSet<ProductGroupProduct> ProductGroupProducts { get; set; }
+        public DbSet<Address> Addresses { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options) { }

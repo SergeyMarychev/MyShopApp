@@ -20,6 +20,14 @@ namespace MyShopApp.WebApi.Controllers
             _signInManager = signInManager;
         }
 
+        [HttpGet("[action]")]
+        public async Task<IActionResult> GetCurrentUserInfo(CancellationToken ct)
+        {
+            var userId = GetCurrentUserId();
+            var result = await _userAppService.GetCurrentUserInfoAsync(userId, ct);
+            return Ok(result);
+        }
+
         private long GetCurrentUserId()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

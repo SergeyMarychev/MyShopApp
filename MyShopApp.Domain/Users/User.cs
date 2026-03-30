@@ -3,7 +3,7 @@ using MyShopApp.Domain.Common;
 
 namespace MyShopApp.Domain.Users
 {
-    public class User : IdentityUser<long>, IEntity
+    public sealed class User : IdentityUser<long>, IEntity
     {
         public bool AllowSharingData { get; set; }
         public bool AllowPushNotifications { get; set; }
@@ -12,5 +12,6 @@ namespace MyShopApp.Domain.Users
         public DateTime CreatedAt { get; set; }
         public bool IsDeleted { get; set; }
         public DateTime? DeletedAt { get; set; }
+        public ICollection<UserAddress> UserAddresses { get; set; } = new List<UserAddress>();
     }
 }

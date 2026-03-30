@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using MyShopApp.Application.Authorization;
 using MyShopApp.Application.Contracts.Users;
 using MyShopApp.Application.Exceptions;
 using MyShopApp.Domain.Users;
@@ -11,13 +10,20 @@ namespace MyShopApp.Application.Users
     internal sealed class UserAppService : IUserAppService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IAddressRepository _addressRepository;
         private readonly UserManager<User> _userManager;
         private readonly IMapper _mapper;
         private readonly ILogger<UserAppService> _logger;
 
-        public UserAppService(IUserRepository userRepository, UserManager<User> userManager, IMapper mapper, ILogger<UserAppService> logger)
+        public UserAppService(
+            IUserRepository userRepository,
+            IAddressRepository addressRepository,
+            UserManager<User> userManager, 
+            IMapper mapper, 
+            ILogger<UserAppService> logger)
         {
             _userRepository = userRepository;
+            _addressRepository = addressRepository;
             _userManager = userManager;
             _mapper = mapper;
             _logger = logger;
@@ -89,6 +95,53 @@ namespace MyShopApp.Application.Users
             }
 
             _logger.LogInformation("Аккаунт пользователя ID {UserId} успешно удален (soft-delete)", userId);
+        }
+
+        public async Task<CurrentUserInfoDto> GetCurrentUserInfoAsync(long userId, CancellationToken ct = default)
+        {
+            _logger.LogInformation("Получение информации о текущем пользователе ID: {UserId}", userId);
+
+            var user = await _userRepository.GetByIdAsync(userId, ct);
+
+            if (user == null)
+            {
+                _logger.LogError("Пользователь с ID {UserId} не найден", userId);
+                UserFriendlyException.USER_WITH_SPECIFIED_ID_WAS_NOT_FOUND(userId);
+            }
+
+            var result = new CurrentUserInfoDto
+            {
+                Name = user.UserName,
+                PhoneNumber = user.PhoneNumber,
+                LastAddress = await GetLastAddressAsync(userId, ct)
+            };
+
+            return result;
+        }
+
+        private async Task<AddressDto> GetLastAddressAsync(long userId, CancellationToken ct)
+        {
+            var lastAddress = await _addressRepository.GetLastAddressByUserIdAsync(userId, ct);
+
+            if (lastAddress == null)
+            {
+                return null;
+            }                
+
+            return new AddressDto
+            {
+                Id = lastAddress.Id,
+                City = lastAddress.City,
+                Street = lastAddress.Street,
+                HouseNumber = lastAddress.HouseNumber,
+                ApartmentNumber = lastAddress.ApartmentNumber,
+                OfficeNumber = lastAddress.OfficeNumber,
+                FloorNumber = lastAddress.FloorNumber,
+                HouseSectionNumber = lastAddress.HouseSectionNumber,
+                DoorphoneNumber = lastAddress.DoorphoneNumber,
+                Comment = lastAddress.Comment,
+                CreatedAt = lastAddress.CreatedAt
+            };
         }
     }
 }
