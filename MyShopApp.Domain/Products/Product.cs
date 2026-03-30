@@ -13,7 +13,7 @@ namespace MyShopApp.Domain.Products
         public DateTime CreatedAt { get; set; }
         public string Image { get; set; } = string.Empty;
         public ICollection<ProductGroupProduct> ProductGroupProducts { get; set; } = new List<ProductGroupProduct>();
-        public string Weight { get; set; } = string.Empty; //Вес
+        public int Value { get; set; } //Вес, литраж, штуки
         public string Ingredients { get; set; } = string.Empty; //Состав
         public string StorageLife { get; set; } = string.Empty; //Срок хранения
         public string StorageConditions { get; set; } = string.Empty; //Условия хранения

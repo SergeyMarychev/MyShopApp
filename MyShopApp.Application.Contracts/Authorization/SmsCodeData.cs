@@ -1,4 +1,4 @@
-﻿namespace MyShopApp.Application.Authorization.Models
+﻿namespace MyShopApp.Application.Contracts.Authorization
 {
     /// <summary>
     /// Внутренняя модель для хранения данных SMS кода в распределенном кэше

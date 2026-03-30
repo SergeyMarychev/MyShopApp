@@ -1,4 +1,4 @@
-﻿namespace MyShopApp.Application.Authorization.Settings
+﻿namespace MyShopApp.Application.Contracts.Authorization
 {
     public class AccountSettings
     {

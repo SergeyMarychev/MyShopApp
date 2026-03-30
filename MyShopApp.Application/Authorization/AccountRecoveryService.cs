@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
-using MyShopApp.Application.Authorization.Settings;
+using MyShopApp.Application.Contracts.Authorization;
 
 namespace MyShopApp.Application.Authorization
 {

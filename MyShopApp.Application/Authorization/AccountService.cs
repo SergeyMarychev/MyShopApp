@@ -1,9 +1,8 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MyShopApp.Application.Authorization.Models;
-using MyShopApp.Application.Authorization.Settings;
 using MyShopApp.Application.Cache;
+using MyShopApp.Application.Contracts.Authorization;
 using MyShopApp.Application.Contracts.Authorization.Dto;
 using MyShopApp.Application.Exceptions;
 using MyShopApp.Domain.Users;

@@ -2,7 +2,7 @@
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MyShopApp.Application.Authorization;
-using MyShopApp.Application.Authorization.Settings;
+using MyShopApp.Application.Contracts.Authorization;
 using MyShopApp.Application.Extensions;
 using MyShopApp.Domain.Roles;
 using MyShopApp.Domain.Users;
