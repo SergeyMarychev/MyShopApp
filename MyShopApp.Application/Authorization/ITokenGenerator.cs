@@ -5,6 +5,10 @@ namespace MyShopApp.Application.Authorization
 {
     public interface ITokenGenerator
     {
+        /// <summary>
+        /// Сгенерировать JWT токен для пользователя
+        /// </summary>
+        /// <returns>JWT токен с данными авторизации</returns>
         Task<TokenDto> GenerateJwtTokenAsync(User user);
     }
 }

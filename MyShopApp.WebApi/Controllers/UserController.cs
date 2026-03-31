@@ -21,6 +21,10 @@ namespace MyShopApp.WebApi.Controllers
             _signInManager = signInManager;
         }
 
+        /// <summary>
+        /// Получить идентификатор текущего авторизованного пользователя
+        /// </summary>
+        /// <returns>Идентификатор пользователя</returns>
         private long GetCurrentUserId()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -31,6 +35,10 @@ namespace MyShopApp.WebApi.Controllers
             return long.Parse(userIdClaim);
         }
 
+        /// <summary>
+        /// Получить профиль текущего пользователя
+        /// </summary>
+        /// <returns>Данные профиля пользователя</returns>
         [HttpGet("[action]")]
         public async Task<IActionResult> Get(CancellationToken ct)
         {
@@ -39,6 +47,11 @@ namespace MyShopApp.WebApi.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Обновить профиль пользователя
+        /// </summary>
+        /// <returns>Результат обновления профиля</returns>
+        /// <remarks>Если указан новый email, на него будет отправлен код подтверждения. Email обновится только после вызова ConfirmEmail</remarks>
         [HttpPut("[action]")]
         public async Task<IActionResult> Update([FromBody] UpdateUserDto input, CancellationToken ct)
         {
@@ -53,6 +66,10 @@ namespace MyShopApp.WebApi.Controllers
             return Ok(new { message = "Профиль обновлен. Если вы изменили email, подтвердите его кодом." });
         }
 
+        /// <summary>
+        /// Удалить аккаунт пользователя
+        /// </summary>
+        /// <returns>Результат удаления аккаунта</returns>
         [HttpDelete("[action]")]
         public async Task<IActionResult> Delete(CancellationToken ct)
         {
@@ -62,6 +79,10 @@ namespace MyShopApp.WebApi.Controllers
             return Ok(new { message = "Аккаунт успешно удален" });
         }
 
+        /// <summary>
+        /// Подтвердить email пользователя
+        /// </summary>
+        /// <returns>Результат подтверждения email</returns>
         [HttpPost("[action]")]
         public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailDto input, CancellationToken ct)
         {
