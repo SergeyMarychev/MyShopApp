@@ -129,6 +129,22 @@
         public static void USER_DELETION_FAILED(string errors) =>
             throw new UserFriendlyException("USERS:00004", $"Ошибка удаления пользователя: {errors}");
 
+        // Email
+        public static void EMAIL_CANNOT_BE_EMPTY() =>
+            throw new UserFriendlyException("USERS:00005", "Email не может быть пустым.");
+
+        public static void EMAIL_ALREADY_IN_USE() =>
+            throw new UserFriendlyException("USERS:00006", "Этот email уже используется другим пользователем.");
+
+        public static void EMAIL_CONFIRMATION_COOLDOWN(int secondsLeft) =>
+            throw new UserFriendlyException("USERS:00007", $"Подождите {secondsLeft} секунд перед повторным запросом кода подтверждения.");
+
+        public static void EMAIL_CODE_ALREADY_SENT() =>
+            throw new UserFriendlyException("USERS:00008", "Код подтверждения уже отправлен. Подождите перед повторной отправкой.");
+
+        public static void EMAIL_ALREADY_CONFIRMED() =>
+            throw new UserFriendlyException("USERS:00009", "Этот email уже подтвержден. Укажите другой email.");
+
         #endregion
     }
 }

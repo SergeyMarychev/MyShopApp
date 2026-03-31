@@ -1,4 +1,5 @@
-﻿using MyShopApp.Application.Contracts.Users;
+﻿using MyShopApp.Application.Contracts.Email;
+using MyShopApp.Application.Contracts.Users;
 
 namespace MyShopApp.Application.Users
 {
@@ -7,6 +8,6 @@ namespace MyShopApp.Application.Users
         Task<UserDto> GetAsync(long userId, CancellationToken ct = default);
         Task UpdateAsync(UpdateUserDto input, CancellationToken ct = default);
         Task DeleteAsync(long userId, CancellationToken ct = default);
-        //Task<bool> RestoreAsync(string phoneNumber, CancellationToken ct = default);
+        Task<ConfirmEmailResultDto> ConfirmEmailAsync(long userId, ConfirmEmailDto input, CancellationToken ct = default);
     }
 }

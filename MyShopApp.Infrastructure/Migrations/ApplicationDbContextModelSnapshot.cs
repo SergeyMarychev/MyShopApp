@@ -127,7 +127,7 @@ namespace MyShopApp.Infrastructure.Migrations
 
                     b.HasIndex("ParentCategoryId");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("MyShopApp.Domain.ParentCategories.ParentCategory", b =>
@@ -147,7 +147,7 @@ namespace MyShopApp.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ParentCategories");
+                    b.ToTable("ParentCategories", (string)null);
                 });
 
             modelBuilder.Entity("MyShopApp.Domain.ProductGroups.ProductGroup", b =>
@@ -180,7 +180,7 @@ namespace MyShopApp.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProductGroups");
+                    b.ToTable("ProductGroups", (string)null);
                 });
 
             modelBuilder.Entity("MyShopApp.Domain.ProductGroups.ProductGroupProduct", b =>
@@ -206,7 +206,7 @@ namespace MyShopApp.Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductGroupProducts");
+                    b.ToTable("ProductGroupProducts", (string)null);
                 });
 
             modelBuilder.Entity("MyShopApp.Domain.Products.Product", b =>
@@ -298,7 +298,7 @@ namespace MyShopApp.Infrastructure.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("MyShopApp.Domain.Roles.Role", b =>

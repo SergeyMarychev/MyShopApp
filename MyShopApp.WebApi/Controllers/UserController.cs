@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using MyShopApp.Application.Contracts.Email;
 using MyShopApp.Application.Contracts.Users;
 using MyShopApp.Application.Users;
 using MyShopApp.Domain.Users;
@@ -27,7 +28,6 @@ namespace MyShopApp.WebApi.Controllers
             {
                 throw new UnauthorizedAccessException();
             }
-
             return long.Parse(userIdClaim);
         }
 
@@ -50,7 +50,7 @@ namespace MyShopApp.WebApi.Controllers
             }
 
             await _userAppService.UpdateAsync(input, ct);
-            return Ok();
+            return Ok(new { message = "Профиль обновлен. Если вы изменили email, подтвердите его кодом." });
         }
 
         [HttpDelete("[action]")]
@@ -58,11 +58,22 @@ namespace MyShopApp.WebApi.Controllers
         {
             var userId = GetCurrentUserId();
             await _userAppService.DeleteAsync(userId, ct);
-
-            // После удаления выходим из системы
             await _signInManager.SignOutAsync();
-
             return Ok(new { message = "Аккаунт успешно удален" });
+        }
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailDto input, CancellationToken ct)
+        {
+            var userId = GetCurrentUserId();
+            var result = await _userAppService.ConfirmEmailAsync(userId, input, ct);
+
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
         }
     }
 }
