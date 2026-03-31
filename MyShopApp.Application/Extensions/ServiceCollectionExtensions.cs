@@ -19,6 +19,7 @@ namespace MyShopApp.Application.Extensions
             services.AddTransient<IProductGroupAppService, ProductGroupAppService>();
             services.AddTransient<IUserAppService, UserAppService>();
             services.AddTransient<IAccountService, AccountService>();
+            services.AddTransient<IContactService, ContactService>();
 
             services.AddTransient<AccountRecoveryService>();
 
